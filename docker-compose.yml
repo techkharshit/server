@@ -1,6 +1,23 @@
 version: '3.8'
-
 services:
+  mysql:
+    image: mysql:8.0.33
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_USER: root
+      MYSQL_PASSWORD: password
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mysql-init/init.sql:/docker-entrypoint-initdb.d/init.sql
+    command: --default-authentication-plugin=mysql_native_password --init-file /docker-entrypoint-initdb.d/init.sql
+
   minio:
     image: minio/minio:latest
     environment:
@@ -22,10 +39,7 @@ services:
     depends_on:
       - minio
     entrypoint: >
-      /bin/sh -c "
-      until (/usr/bin/mc alias set myminio http://minio:9000 minioadmin minioadmin) do sleep 5; done;
-      /usr/bin/mc mb myminio/test
-      "
+      /bin/sh -c "until (/usr/bin/mc alias set myminio http://minio:9000 minioadmin minioadmin) do sleep 5; done; /usr/bin/mc mb myminio/test"
     volumes:
       - minio_data:/data
 
@@ -36,12 +50,16 @@ services:
       MINIO_BUCKET: test
       MINIO_ACCESS_KEY: minioadmin
       MINIO_SECRET_KEY: minioadmin
+      MYSQL_URL: mysql://root:password@mysql:3306/test
     ports:
       - "8000:8000"
     depends_on:
+      - mysql
       - create-bucket
     volumes:
       - /c/Users/Lenovo/Downloads:/usr/src/app/Downloads
+    entrypoint: ["sh", "-c", "/usr/local/bin/wait-for-it.sh mysql -- /usr/local/bin/server"]
 
 volumes:
+  mysql_data:
   minio_data:
