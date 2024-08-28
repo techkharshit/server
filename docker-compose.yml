@@ -51,6 +51,17 @@ services:
       MINIO_ACCESS_KEY: minioadmin
       MINIO_SECRET_KEY: minioadmin
       MYSQL_URL: mysql://root:password@mysql:3306/test
+      
+      # Auth0 Configuration
+      AUTH0_CLIENT_ID: d3J1b8iWwEB4s3E7I78OxkBIUQjUePJC
+      AUTH0_CLIENT_SECRET: DZBh_dmOPlklkyX-gFgCoxAoQveBC5Vs2OsXz5ljlxuQ3rCeW7kq22z43nhMy3k9
+      AUTH0_AUDIENCE: https://dev-piqoj41lg4u1r8nd.us.auth0.com/api/v2/
+      AUTH0_TOKEN_URL: https://dev-piqoj41lg4u1r8nd.us.auth0.com/oauth/token
+      AUTH0_DOMAIN: dev-piqoj41lg4u1r8nd.us.auth0.com
+
+
+
+
     ports:
       - "8000:8000"
     depends_on:
